@@ -1,16 +1,16 @@
 package edu.itc.salesreport.ui.console;
 
+import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.file.Path;
+import java.time.YearMonth;
+
 import edu.itc.salesreport.engine.DefaultSalesAggregator;
 import edu.itc.salesreport.ingest.CsvMonthReader;
 import edu.itc.salesreport.ingest.CsvTransactionParser;
 import edu.itc.salesreport.ui.SalesEvent;
 import edu.itc.salesreport.ui.SalesModel;
 import edu.itc.salesreport.ui.SalesModelListener;
-
-import java.io.IOException;
-import java.io.PrintStream;
-import java.nio.file.Path;
-import java.time.YearMonth;
 
 /** Console view: prints one line per event plus the summary. Toolkit-free. */
 public final class ConsoleReportView implements SalesModelListener {
@@ -28,7 +28,7 @@ public final class ConsoleReportView implements SalesModelListener {
     public void modelChanged(SalesEvent event) {
         out.println(switch (event) {
             case SalesEvent.MonthLoaded(var month, var rows, var rejected) ->
-                    "Loaded %s: %d rows, %d rejected".formatted(month, rows, rejected.size());
+                                        "Loaded %s: %d rows, %d rejected".formatted(month, rows, rejected);
             case SalesEvent.BranchSelected(var branch) -> "Branch " + branch;
         });
         var s = model.summary();

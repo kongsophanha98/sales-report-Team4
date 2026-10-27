@@ -1,14 +1,17 @@
 package edu.itc.salesreport.ui;
 
-import edu.itc.salesreport.engine.SalesAggregator;
-import edu.itc.salesreport.ingest.CsvMonthReader;
-import edu.itc.salesreport.ingest.MonthData;
-import edu.itc.salesreport.model.*;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.YearMonth;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import edu.itc.salesreport.engine.SalesAggregator;
+import edu.itc.salesreport.ingest.CsvMonthReader;
+import edu.itc.salesreport.ingest.MonthData;
+import edu.itc.salesreport.model.BranchSummary;
+import edu.itc.salesreport.model.SaleTransaction;
 
 /** MVC model of the report viewer. Confined to one thread (the UI thread). */
 public final class SalesModel {
@@ -32,7 +35,7 @@ public final class SalesModel {
     public void load(Path dataDir, YearMonth month) throws IOException {
         MonthData loaded = reader.read(dataDir, month);
         this.data = loaded;
-        fire(new SalesEvent.MonthLoaded(month, data.rows().size(), data.rejected()));
+                fire(new SalesEvent.MonthLoaded(month, data.rows().size(), data.rejected().size()));
     }
 
     public void selectBranch(String newBranch) {

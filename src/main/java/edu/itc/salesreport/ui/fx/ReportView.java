@@ -1,7 +1,13 @@
 package edu.itc.salesreport.ui.fx;
 
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Locale;
+import java.util.function.Function;
+
 import edu.itc.salesreport.model.SaleTransaction;
 import edu.itc.salesreport.ui.ErrorDisplay;
+import edu.itc.salesreport.ui.ReportController;
 import edu.itc.salesreport.ui.SalesEvent;
 import edu.itc.salesreport.ui.SalesModel;
 import edu.itc.salesreport.ui.SalesModelListener;
@@ -22,11 +28,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Locale;
-import java.util.function.Function;
 
 /** MVC view: observes SalesModel and renders its current report. */
 public final class ReportView implements SalesModelListener, ErrorDisplay {
@@ -79,6 +80,12 @@ public final class ReportView implements SalesModelListener, ErrorDisplay {
     }
 
     public Parent root() { return root; }
+
+    /** Gestures are forwarded as raw text; validation lives in the controller. */
+    public void bind(ReportController controller) {
+        monthField.setOnAction(e -> controller.monthEntered(monthField.getText()));
+        branchBox.setOnAction(e -> controller.branchChosen(branchBox.getValue()));
+    }
 
     @Override
     public void modelChanged(SalesEvent event) {

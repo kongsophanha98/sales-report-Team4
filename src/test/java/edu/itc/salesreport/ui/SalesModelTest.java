@@ -1,13 +1,4 @@
 package edu.itc.salesreport.ui;
-
-import edu.itc.salesreport.TestData;
-import edu.itc.salesreport.engine.DefaultSalesAggregator;
-import edu.itc.salesreport.ingest.CsvMonthReader;
-import edu.itc.salesreport.ingest.CsvTransactionParser;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.NoSuchFileException;
@@ -16,7 +7,18 @@ import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+import edu.itc.salesreport.TestData;
+import edu.itc.salesreport.engine.DefaultSalesAggregator;
+import edu.itc.salesreport.ingest.CsvMonthReader;
+import edu.itc.salesreport.ingest.CsvTransactionParser;
 
 class SalesModelTest {
     @TempDir
@@ -42,7 +44,7 @@ class SalesModelTest {
         assertInstanceOf(SalesEvent.MonthLoaded.class, events.get(0));
         var loaded = (SalesEvent.MonthLoaded) events.get(0);
         assertEquals(3, loaded.rows());
-        assertEquals(1, loaded.rejected().size());
+                assertEquals(1, loaded.rejected());
         assertEquals(new BigDecimal("52.00"), model.summary().revenue());
     }
 

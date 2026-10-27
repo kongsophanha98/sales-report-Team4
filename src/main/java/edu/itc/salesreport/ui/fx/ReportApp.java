@@ -1,5 +1,9 @@
 package edu.itc.salesreport.ui.fx;
 
+import java.io.IOException;
+import java.nio.file.Path;
+import java.time.YearMonth;
+
 import edu.itc.salesreport.engine.DefaultSalesAggregator;
 import edu.itc.salesreport.ingest.CsvMonthReader;
 import edu.itc.salesreport.ingest.CsvTransactionParser;
@@ -7,10 +11,6 @@ import edu.itc.salesreport.ui.SalesModel;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-
-import java.io.IOException;
-import java.nio.file.Path;
-import java.time.YearMonth;
 
 public final class ReportApp extends Application {
     @Override
@@ -35,3 +35,4 @@ public final class ReportApp extends Application {
         launch(args);
     }
 }
+
