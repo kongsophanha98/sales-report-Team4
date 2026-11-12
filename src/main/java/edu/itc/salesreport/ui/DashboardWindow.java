@@ -2,7 +2,6 @@ package edu.itc.salesreport.ui;
 
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-
 final class DashboardWindow {
 
     static Stage open(ReportViewModel vm) {
