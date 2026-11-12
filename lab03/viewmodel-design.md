@@ -123,3 +123,29 @@ inputs and the two triggerable commands.
 ## Repository adaptation
 
 This Team 4 checkout already includes Lab 2’s `model`, `ingest`, and `engine` packages and the supplied root Maven project. Its original MVC controller has one branch selector and loads a whole month before selecting one branch. Task 1’s `SummarySource` is the intended per-branch port; its adapter can use `CsvMonthReader` and `SalesAggregator` without changing the existing model records. The legacy UI classes remain available as the comparison baseline.
+
+## Screen state machine
+
+```mermaid
+stateDiagram-v2
+    [*] --> Incomplete
+    Incomplete --> Ready: month ok and a branch ticked
+    Incomplete --> Invalid: future month or no branch
+    Invalid --> Ready: input fixed
+    Ready --> Invalid: input changed
+    Ready --> Loading: generate
+    Loading --> Loaded: succeeded
+    Loading --> Failed: failed
+    Loading --> Ready: cancelled
+    Loaded --> Loading: generate again
+    Failed --> Loading: generate again
+```
+
+| State | month | validationMessage | canGenerate | loading | status | loadError |
+|---|---|---|---|---|---|---|
+| Incomplete | null | "Choose a month." | false | false | "Choose a month." | "" |
+| Invalid | future, or no branch ticked | rule message | false | false | unchanged | unchanged |
+| Ready | valid | "" | true | false | unchanged | "" |
+| Loading | valid | "" | false | true | "Loading 2026-09..." | "" |
+| Loaded | valid | "" | true | false | "Loaded 3 branch(es) for 2026-09." | "" |
+| Failed | valid | "" | true | false | "Load failed, previous data kept." | file message |
