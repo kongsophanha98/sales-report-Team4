@@ -49,18 +49,24 @@ The Lab 2 implementation uses `ReportController`, `InputRules`, `SalesModel`, an
 ```mermaid
 classDiagram
     class ReportView { +root() Parent }
-    class DashboardView { +root() Parent }
+    class ReportViewerApp { +start(Stage) }
     class ReportViewModel {
       +monthProperty() ObjectProperty~YearMonth~
       +branchSelectedProperty(String) BooleanProperty
       +productFilterProperty() StringProperty
+      +monthChoices() ObservableList~YearMonth~
       +summaries() ObservableList~BranchSummary~
       +visibleProducts() ObservableList~ProductTotal~
       +loadingProperty() ReadOnlyBooleanProperty
       +progressProperty() ReadOnlyDoubleProperty
       +statusProperty() ReadOnlyStringProperty
       +loadErrorProperty() ReadOnlyStringProperty
+      +monthErrorProperty() StringExpression
+      +branchErrorProperty() StringExpression
+      +validationMessageProperty() StringExpression
       +canGenerateProperty() ObservableBooleanValue
+      +totalRevenueProperty() ObservableObjectValue~BigDecimal~
+      +totalRevenueTextProperty() StringExpression
       +generateCommand() Command
       +cancelCommand() Command
     }
@@ -78,6 +84,10 @@ classDiagram
       <<interface>>
       +submit(Work, JobListener) JobHandle
     }
+    class SalesModel
+    class CsvMonthReader
+    class SalesAggregator
+    class SaleTransaction
     class BranchSummary
     class ProductTotal
     class ManualJobs {
@@ -86,17 +96,29 @@ classDiagram
     class FakeSummarySource {
       <<test double>>
     }
+    ReportViewerApp --> ReportView : creates
+    ReportViewerApp --> ReportViewModel : creates
     ReportView --> ReportViewModel : binds
-    DashboardView --> ReportViewModel : binds
     ReportViewModel --> SummarySource : loads through
     ReportViewModel --> BackgroundJobs : schedules through
     ReportViewModel --> Command : exposes
     Command <|.. DelegateCommand
-    SummarySource --> BranchSummary : returns
+    SummarySource --> CsvMonthReader : adapter uses
+    SummarySource --> SalesAggregator : adapter uses
+    SalesModel --> CsvMonthReader : reads
+    SalesModel --> SalesAggregator : summarizes
+    SalesModel --> SaleTransaction : contains
+    SalesAggregator --> BranchSummary : creates
     BranchSummary --> ProductTotal : contains
     ManualJobs ..|> BackgroundJobs
     FakeSummarySource ..|> SummarySource
 ```
+
+`ManualJobs` and `FakeSummarySource` are test-double roles shown to make the
+dependency boundaries explicit; their implementations belong with the
+toolkit-free ViewModel tests in Task 5. All methods in the member table return
+observable read-only types or unmodifiable lists except the three declared
+inputs and the two triggerable commands.
 
 ## Repository adaptation
 
