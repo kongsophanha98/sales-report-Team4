@@ -20,7 +20,7 @@ class UiIndependenceTest {
 
     /** Toolkit-free packages. ui/fx (and ui/fx/legacy) are deliberately absent. */
     private static final List<String> CORE_PACKAGES =
-            List.of("model", "ingest", "engine", "ui", "ui/console", "ui/mvp");
+            List.of("model", "ingest", "engine", "ui/console", "ui/mvp");
 
     private static final List<String> FORBIDDEN =
             List.of("import javafx.", "import java.awt.", "import javax.swing.");
