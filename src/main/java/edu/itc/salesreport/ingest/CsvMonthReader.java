@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 public final class CsvMonthReader {
+    private static final Set<String> BRANCHES = Set.of("PNH", "REP", "BTB");
     private static final Pattern FILE_PATTERN = Pattern.compile("(PNH|REP|BTB)-\\d{4}-\\d{2}-\\d{2}\\.csv");
     private final TransactionParser parser;
 
@@ -17,6 +18,19 @@ public final class CsvMonthReader {
     }
 
     public MonthData read(Path dataDir, YearMonth month) throws IOException {
+        return read(dataDir, month, null);
+    }
+
+    public MonthData readBranch(Path dataDir, YearMonth month, String branch)
+            throws IOException {
+        if (branch == null || !BRANCHES.contains(branch)) {
+            throw new IllegalArgumentException("Unknown branch: " + branch);
+        }
+        return read(dataDir, month, branch);
+    }
+
+    private MonthData read(Path dataDir, YearMonth month, String branch)
+            throws IOException {
         Path monthDir = dataDir.resolve(month.toString());
         if (!Files.isDirectory(monthDir)) {
             throw new NoSuchFileException(monthDir.toString());
@@ -28,7 +42,13 @@ public final class CsvMonthReader {
         try (Stream<Path> paths = Files.list(monthDir)) {
             List<Path> files = paths
                     .filter(Files::isRegularFile)
-                    .filter(p -> FILE_PATTERN.matcher(p.getFileName().toString()).matches())
+                    .filter(p -> {
+                        var matcher = FILE_PATTERN.matcher(
+                                p.getFileName().toString());
+                        return matcher.matches()
+                                && (branch == null
+                                || matcher.group(1).equals(branch));
+                    })
                     .sorted(Comparator.comparing(p -> p.getFileName().toString()))
                     .toList();
 

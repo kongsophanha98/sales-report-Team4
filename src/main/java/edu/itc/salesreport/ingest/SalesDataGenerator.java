@@ -14,8 +14,30 @@ public final class SalesDataGenerator {
     private static final List<String> PAYMENTS = List.of("CASH", "CARD", "KHQR");
 
     public static void main(String[] args) {
-        if (args.length == 0) {
+        if (args.length == 4) {
+            YearMonth month = YearMonth.parse(args[0]);
+            int rowsPerDay = Integer.parseInt(args[1]);
+            long seed = Long.parseLong(args[2]);
+            if (rowsPerDay <= 0) {
+                throw new IllegalArgumentException("rows-per-day must be positive");
+            }
+            Path rootDir = Path.of(args[3]);
+            try {
+                generateMonth(rootDir, month, rowsPerDay, seed);
+                long rowCount = (long) rowsPerDay * month.lengthOfMonth()
+                        * BRANCHES.size();
+                System.out.printf("Generated %d rows in %d files under %s%n",
+                        rowCount,
+                        month.lengthOfMonth() * BRANCHES.size(), rootDir);
+            } catch (IOException e) {
+                System.err.println("Failed to generate data: " + e.getMessage());
+                System.exit(1);
+            }
+            return;
+        }
+        if (args.length != 1) {
             System.err.println("Usage: java edu.itc.salesreport.ingest.SalesDataGenerator <output-dir>");
+            System.err.println("   or: java edu.itc.salesreport.ingest.SalesDataGenerator <yyyy-MM> <rows-per-day> <seed> <output-dir>");
             System.exit(1);
         }
         Path rootDir = Path.of(args[0]);
@@ -29,8 +51,16 @@ public final class SalesDataGenerator {
     }
 
     public static void generateMonth(Path rootDir, YearMonth yearMonth) throws IOException {
+        generateMonth(rootDir, yearMonth, 0, yearMonth.hashCode());
+    }
+
+    public static void generateMonth(Path rootDir, YearMonth yearMonth,
+            int rowsPerBranchDay, long seed) throws IOException {
+        if (rowsPerBranchDay < 0) {
+            throw new IllegalArgumentException("rows-per-day cannot be negative");
+        }
         Path monthDir = Files.createDirectories(rootDir.resolve(yearMonth.toString()));
-        Random random = new Random(yearMonth.hashCode());
+        Random random = new Random(seed);
         int days = yearMonth.lengthOfMonth();
 
         for (int day = 1; day <= days; day++) {
@@ -39,7 +69,8 @@ public final class SalesDataGenerator {
                 Path file = monthDir.resolve(branch + "-" + date + ".csv");
                 StringBuilder sb = new StringBuilder("branch,date,receipt_no,sku,product_name,category,quantity,unit_price,discount,payment_method\n");
                 
-                int rows = 15 + random.nextInt(15);
+                int rows = rowsPerBranchDay == 0
+                        ? 15 + random.nextInt(15) : rowsPerBranchDay;
                 for (int r = 1; r <= rows; r++) {
                     String receiptNo = String.format("%s-%06d", branch, r);
                     String sku = "SKU-" + (1000 + random.nextInt(5000));
